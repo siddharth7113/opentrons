@@ -28,7 +28,12 @@ vi.mock('../../config', () => ({
       return undefined
     }
   }),
+  getFullConfig: vi.fn(() => ({
+    labware: { directory: mockLabwareDir },
+  })),
 }))
+
+let mockLabwareDir = ''
 
 describe('protocol storage directory utilities', () => {
   let protocolsDir: string
@@ -135,6 +140,51 @@ describe('protocol storage directory utilities', () => {
         })
       )
       await fs.rm(destDir, { recursive: true, force: true })
+    })
+
+    it('converts embedded labware to by-name loads when convertToAppLabware is set', async () => {
+      const destDir = tempy.directory()
+      mockLabwareDir = tempy.directory()
+      const destFilePath = path.join(destDir, 'converted.py')
+      const pdSource = `import json
+from opentrons import protocol_api, types
+
+def run(protocol: protocol_api.ProtocolContext) -> None:
+    well_plate_1 = protocol.load_labware_from_definition(
+        CUSTOM_LABWARE["custom_beta/linxens_halter_v5/1"],
+        location="C2",
+    )
+
+CUSTOM_LABWARE = json.loads("""{"custom_beta/linxens_halter_v5/1": {"namespace": "custom_beta", "version": 1, "parameters": {"loadName": "linxens_halter_v5"}}}""")
+
+DESIGNER_APPLICATION = """{"name": "opentrons/protocol-designer"}"""
+`
+      await fs.emptyDir(path.join(protocolsDir, 'pdproto', 'src'))
+      await fs.writeFile(
+        path.join(protocolsDir, 'pdproto', 'src', 'my_pd_protocol.py'),
+        pdSource
+      )
+      vi.mocked(showSaveDialog).mockResolvedValue(destFilePath)
+
+      const handleAction = registerProtocolStorage(mockDispatch, mockMainWindow)
+      handleAction({
+        type: 'protocolStorage:EXPORT_PROTOCOL',
+        payload: { protocolKey: 'pdproto', convertToAppLabware: true },
+        meta: { shell: true },
+      } as any)
+
+      await vi.waitFor(async () => {
+        expect(await fs.pathExists(destFilePath)).toBe(true)
+      })
+      const converted = await fs.readFile(destFilePath, 'utf8')
+      expect(converted).toContain('protocol.load_labware(')
+      expect(converted).toContain('namespace="custom_beta"')
+      expect(converted).not.toContain('CUSTOM_LABWARE')
+      // embedded def installed into the app labware directory
+      const labwareFiles = await fs.readdir(mockLabwareDir)
+      expect(labwareFiles).toHaveLength(1)
+      await fs.rm(destDir, { recursive: true, force: true })
+      await fs.rm(mockLabwareDir, { recursive: true, force: true })
     })
 
     it('exports nothing when the save dialog is canceled', async () => {

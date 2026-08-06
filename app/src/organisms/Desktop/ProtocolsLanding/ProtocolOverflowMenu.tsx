@@ -89,6 +89,12 @@ export function ProtocolOverflowMenu(
     dispatch(exportProtocol(protocolKey))
     setShowOverflowMenu(currentShowOverflowMenu => !currentShowOverflowMenu)
   }
+  const handleClickExportConverted: MouseEventHandler<HTMLButtonElement> = e => {
+    e.preventDefault()
+    e.stopPropagation()
+    dispatch(exportProtocol(protocolKey, true))
+    setShowOverflowMenu(currentShowOverflowMenu => !currentShowOverflowMenu)
+  }
   const handleClickRun: MouseEventHandler<HTMLButtonElement> = e => {
     e.preventDefault()
     e.stopPropagation()
@@ -183,6 +189,12 @@ export function ProtocolOverflowMenu(
             data-testid="ProtocolOverflowMenu_exportProtocol"
           >
             {t('export_protocol_file')}
+          </MenuItem>
+          <MenuItem
+            onClick={handleClickExportConverted}
+            data-testid="ProtocolOverflowMenu_exportProtocolConverted"
+          >
+            {t('export_with_app_labware')}
           </MenuItem>
           <MenuItem
             onClick={handleClickDelete}

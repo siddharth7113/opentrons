@@ -22,8 +22,13 @@ import {
   UI_INITIALIZED,
   VIEW_PROTOCOL_SOURCE_FOLDER,
 } from '../constants'
+import { getFullConfig } from '../config'
 import { showSaveDialog } from '../dialogs'
 import { createFailedAnalysis } from '../protocol-analysis/writeFailedAnalysis'
+import {
+  convertPdProtocolToAppLabware,
+  installMissingLabwareDefs,
+} from './convert-pd-protocol'
 import * as FileSystem from './file-system'
 
 import type { BrowserWindow } from 'electron'
@@ -294,6 +299,7 @@ export function registerProtocolStorage(
 
       case EXPORT_PROTOCOL: {
         const protocolsDir = getProtocolsDirectoryPath()
+        const { convertToAppLabware } = action.payload
         void FileSystem.getProtocolSrcFilePaths(
           action.payload.protocolKey,
           protocolsDir
@@ -308,10 +314,24 @@ export function registerProtocolStorage(
             filters: [
               { name: 'Opentrons Protocol', extensions: ['py', 'json', 'zip'] },
             ],
-          }).then(destFilePath => {
-            if (destFilePath != null) {
-              return fse.copy(srcFilePath, destFilePath, { overwrite: true })
+          }).then(async destFilePath => {
+            if (destFilePath == null) return
+            if (
+              convertToAppLabware &&
+              path.extname(srcFilePath).toLowerCase() === '.py'
+            ) {
+              const source = await fse.readFile(srcFilePath, 'utf8')
+              const result = convertPdProtocolToAppLabware(source)
+              if (result.didConvert) {
+                const labwareDir = getFullConfig().labware.directory
+                await installMissingLabwareDefs(
+                  result.customLabwareDefs,
+                  labwareDir
+                )
+              }
+              return fse.writeFile(destFilePath, result.converted)
             }
+            return fse.copy(srcFilePath, destFilePath, { overwrite: true })
           })
         })
         break
