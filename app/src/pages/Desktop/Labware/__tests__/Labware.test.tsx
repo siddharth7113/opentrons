@@ -12,7 +12,11 @@ import {
   ANALYTICS_OPEN_LABWARE_CREATOR_FROM_BOTTOM_OF_LABWARE_LIBRARY_LIST,
   useTrackEvent,
 } from '/app/redux/analytics'
-import { mockDefinition } from '/app/redux/custom-labware/__fixtures__'
+import { addCustomLabware } from '/app/redux/custom-labware'
+import {
+  mockDefinition,
+  mockDuplicateLabware,
+} from '/app/redux/custom-labware/__fixtures__'
 
 import { Labware } from '..'
 import { useLabwareFailure, useNewLabwareName } from '../hooks'
@@ -47,6 +51,7 @@ describe('Labware', () => {
     vi.mocked(useAllLabware).mockReturnValue([{ definition: mockDefinition }])
     vi.mocked(useLabwareFailure).mockReturnValue({
       labwareFailureMessage: null,
+      duplicateFile: null,
       clearLabwareFailure: vi.fn(),
     })
     vi.mocked(useNewLabwareName).mockReturnValue({
@@ -92,6 +97,7 @@ describe('Labware', () => {
   it('renders error toast if there is a failure', () => {
     vi.mocked(useLabwareFailure).mockReturnValue({
       labwareFailureMessage: 'mock failure message',
+      duplicateFile: null,
       clearLabwareFailure: vi.fn(),
     })
     render()
@@ -99,6 +105,28 @@ describe('Labware', () => {
       'mock failure message',
       'error',
       expect.any(Object)
+    )
+  })
+  it('renders overwrite modal instead of error toast for duplicate labware', () => {
+    vi.mocked(useLabwareFailure).mockReturnValue({
+      labwareFailureMessage: 'mock duplicate message',
+      duplicateFile: mockDuplicateLabware,
+      clearLabwareFailure: vi.fn(),
+    })
+    render()
+    screen.getByText('Labware definition already exists')
+    expect(mockMakeToast).not.toHaveBeenCalled()
+  })
+  it('dispatches overwrite when clicking Replace definition in the modal', () => {
+    vi.mocked(useLabwareFailure).mockReturnValue({
+      labwareFailureMessage: 'mock duplicate message',
+      duplicateFile: mockDuplicateLabware,
+      clearLabwareFailure: vi.fn(),
+    })
+    const [, store] = render()
+    fireEvent.click(screen.getByRole('button', { name: 'Replace definition' }))
+    expect(store.dispatch).toHaveBeenCalledWith(
+      addCustomLabware(mockDuplicateLabware)
     )
   })
   it('renders success toast if there is a new labware name', () => {

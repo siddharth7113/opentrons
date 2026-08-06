@@ -8,10 +8,12 @@ import {
   getAddNewLabwareName,
 } from '/app/redux/custom-labware'
 
+import type { DuplicateLabwareFile } from '/app/redux/custom-labware/types'
 import type { Dispatch } from '/app/redux/types'
 
 export function useLabwareFailure(): {
   labwareFailureMessage: string | null
+  duplicateFile: DuplicateLabwareFile | null
   clearLabwareFailure: () => unknown
 } {
   const { t } = useTranslation(['labware_landing', 'branded'])
@@ -19,6 +21,7 @@ export function useLabwareFailure(): {
   const labwareFailure = useSelector(getAddLabwareFailure)
 
   let labwareFailureMessage = null
+  let duplicateFile: DuplicateLabwareFile | null = null
   if (labwareFailure.file != null || labwareFailure.errorMessage != null) {
     const failedFile = labwareFailure.file
     let errorMessage = t('unable_to_upload')
@@ -26,6 +29,7 @@ export function useLabwareFailure(): {
       errorMessage = t('invalid_labware_def')
     } else if (failedFile?.type === 'DUPLICATE_LABWARE_FILE') {
       errorMessage = t('duplicate_labware_def')
+      duplicateFile = failedFile
     } else if (failedFile?.type === 'OPENTRONS_LABWARE_FILE') {
       errorMessage = t('branded:opentrons_labware_def')
     }
@@ -39,7 +43,7 @@ export function useLabwareFailure(): {
   const clearLabwareFailure = (): unknown =>
     dispatch(clearAddCustomLabwareFailure())
 
-  return { labwareFailureMessage, clearLabwareFailure }
+  return { labwareFailureMessage, duplicateFile, clearLabwareFailure }
 }
 
 export function useNewLabwareName(): {
