@@ -47,7 +47,7 @@ jobs:
         id: exe
         shell: bash
         run: |
-          EXES=$(find app-shell/dist -name '*.exe' | head -10)
+          EXES=$(find app-shell/dist -maxdepth 1 -name 'Opentrons-*.exe' | head -5)
           echo "Found installers:"
           echo "$EXES"
           if [ -z "$EXES" ]; then
@@ -61,7 +61,7 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: windows-installer
-          path: app-shell/dist/**/*.exe
+          path: app-shell/dist/Opentrons-*.exe
           if-no-files-found: error
           retention-days: 14
       - name: 'publish prerelease on this fork'
@@ -85,7 +85,7 @@ jobs:
               --title "Internal test build $TAG" \
               --notes "$NOTES"
           fi
-          for EXE in $(find app-shell/dist -name '*.exe' | head -10); do
+          for EXE in $(find app-shell/dist -maxdepth 1 -name 'Opentrons-*.exe' | head -5); do
             for attempt in 1 2 3 4 5; do
               if gh release upload "$TAG" "$EXE" --clobber; then
                 break
