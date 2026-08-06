@@ -1,0 +1,79 @@
+name: 'Internal Windows test build'
+
+# Internal-only: builds an UNSIGNED Windows installer of the desktop app from
+# this branch and publishes it as a prerelease on this fork, so teammates can
+# download and test. Not intended for upstream.
+
+on:
+  push:
+    branches:
+      - 'sid/win-build**'
+  workflow_dispatch: {}
+
+permissions:
+  contents: write
+
+concurrency:
+  group: internal-windows-build-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  build-windows:
+    runs-on: 'windows-2022'
+    timeout-minutes: 90
+    name: 'Build unsigned Windows desktop app'
+    steps:
+      - uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7.0.0
+        with:
+          fetch-depth: 0
+      - uses: ./.github/actions/js/setup
+      - name: 'bundle frontend'
+        shell: bash
+        env:
+          OPENTRONS_PROJECT: robot-stack
+          OT_BUILD_TARGET: desktop
+        run: make -C app dist
+      - name: 'build unsigned windows installer'
+        shell: bash
+        timeout-minutes: 60
+        env:
+          OPENTRONS_PROJECT: robot-stack
+          OT_BUILD_TARGET: desktop
+          HOST_PYTHON: python
+          WINDOWS_SIGN: 'false'
+          CSC_IDENTITY_AUTO_DISCOVERY: 'false'
+        run: make -C app-shell dist-windows-2022 USE_HARD_LINKS=false
+      - name: 'locate installer'
+        id: exe
+        shell: bash
+        run: |
+          EXES=$(find app-shell/dist -name '*.exe' | head -10)
+          echo "Found installers:"
+          echo "$EXES"
+          if [ -z "$EXES" ]; then
+            echo "No .exe produced" >&2
+            exit 1
+          fi
+          echo "exes<<EOF" >> "$GITHUB_OUTPUT"
+          echo "$EXES" >> "$GITHUB_OUTPUT"
+          echo "EOF" >> "$GITHUB_OUTPUT"
+      - name: 'publish prerelease on this fork'
+        shell: bash
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          TAG="internal-test-$(date +%Y%m%d)-${GITHUB_SHA::7}"
+          NOTES="Unsigned internal test build from branch ${GITHUB_REF_NAME}.
+
+          Includes:
+          - Custom labware re-import: Replace definition confirmation dialog
+          - Show in folder highlights the protocol source file
+          - Export protocol file via native save dialog
+
+          Windows SmartScreen will warn because the build is unsigned:
+          choose 'More info' -> 'Run anyway'."
+          gh release create "$TAG" \
+            --prerelease \
+            --title "Internal test build $TAG" \
+            --notes "$NOTES" \
+            $(find app-shell/dist -name '*.exe' | head -10)
