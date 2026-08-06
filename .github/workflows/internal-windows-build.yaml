@@ -27,6 +27,17 @@ jobs:
         with:
           fetch-depth: 0
       - uses: ./.github/actions/js/setup
+      - name: 'fetch upstream release refs for PD labware versioning'
+        shell: bash
+        run: |
+          git fetch --depth 1 https://github.com/Opentrons/opentrons.git \
+            'refs/heads/chore_release-*:refs/remotes/origin/chore_release-*' || true
+      - name: 'bundle protocol designer'
+        shell: bash
+        env:
+          OPENTRONS_PROJECT: robot-stack
+          NODE_ENV: production
+        run: make -C protocol-designer dist
       - name: 'bundle frontend'
         shell: bash
         env:
