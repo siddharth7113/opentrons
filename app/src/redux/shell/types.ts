@@ -213,6 +213,11 @@ export interface CameraStreamOpenAction {
   meta: { shell: true }
 }
 
+export interface ProtocolDesignerOpenAction {
+  type: 'shell:PROTOCOL_DESIGNER_OPEN'
+  meta: { shell: true }
+}
+
 export interface CameraPhotoOpenAction {
   type: 'shell:CAMERA_PHOTO_OPEN'
   payload: {
@@ -290,6 +295,7 @@ export type ShellAction =
   | SystemLanguageAction
   | CameraStreamOpenAction
   | CameraPhotoOpenAction
+  | ProtocolDesignerOpenAction
   | StepDetailViewerOpenAction
   | StepDetailViewerUpdateAction
   | StepDetailViewerCloseAction

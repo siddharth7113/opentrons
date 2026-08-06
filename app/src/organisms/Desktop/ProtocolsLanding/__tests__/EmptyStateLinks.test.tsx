@@ -1,9 +1,10 @@
 import { BrowserRouter } from 'react-router-dom'
-import { screen } from '@testing-library/react'
+import { fireEvent, screen } from '@testing-library/react'
 import { afterEach, describe, expect, it, vi } from 'vitest'
 
 import { renderWithProviders } from '/app/__testing-utils__'
 import { i18n } from '/app/i18n'
+import { protocolDesignerOpenAction } from '/app/redux/shell'
 
 import { EmptyStateLinks } from '../EmptyStateLinks'
 
@@ -32,5 +33,11 @@ describe('EmptyStateLinks', () => {
     screen.getByRole('link', { name: 'Open Protocol Library' })
     screen.getByRole('link', { name: 'Open Protocol Designer' })
     screen.getByRole('link', { name: 'Open Python API Documentation' })
+  })
+
+  it('dispatches protocol designer open action instead of external link', () => {
+    const [, store] = render()
+    fireEvent.click(screen.getByRole('link', { name: 'Open Protocol Designer' }))
+    expect(store.dispatch).toHaveBeenCalledWith(protocolDesignerOpenAction())
   })
 })

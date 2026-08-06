@@ -5,6 +5,7 @@ export type SecondaryWindowType =
   | 'camera-photo'
   | 'step-detail-viewer'
   | 'step-detail-data-updated'
+  | 'protocol-designer'
 
 export interface SecondaryWindowDetails {
   type: SecondaryWindowType

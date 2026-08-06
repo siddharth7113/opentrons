@@ -1,4 +1,9 @@
 import { useTranslation } from 'react-i18next'
+import { useDispatch } from 'react-redux'
+
+import { protocolDesignerOpenAction } from '/app/redux/shell'
+
+import type { Dispatch } from '/app/redux/types'
 
 import {
   ALIGN_CENTER,
@@ -15,7 +20,6 @@ import {
 } from '@opentrons/components'
 
 const PROTOCOL_LIBRARY_URL = 'https://library.opentrons.com'
-const PROTOCOL_DESIGNER_URL = 'https://designer.opentrons.com'
 const API_DOCS_URL = 'https://docs.opentrons.com/v2/'
 
 interface Props {
@@ -24,6 +28,7 @@ interface Props {
 
 export function EmptyStateLinks(props: Props): JSX.Element | null {
   const { t } = useTranslation('protocol_info')
+  const dispatch = useDispatch<Dispatch>()
 
   return (
     <Flex
@@ -64,9 +69,12 @@ export function EmptyStateLinks(props: Props): JSX.Element | null {
         <LegacyStyledText>
           <Link
             css={TYPOGRAPHY.darkLinkLabelSemiBold}
-            href={PROTOCOL_DESIGNER_URL}
             marginRight={SPACING.spacing8}
-            external
+            href="#"
+            onClick={e => {
+              e.preventDefault()
+              dispatch(protocolDesignerOpenAction())
+            }}
           >
             {t('launch_protocol_designer')}
 

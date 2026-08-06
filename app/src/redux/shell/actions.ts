@@ -5,6 +5,7 @@ import type {
   NotifySubscribeAction,
   NotifyTopic,
   OT2AppOpenAction,
+  ProtocolDesignerOpenAction,
   ReloadUiAction,
   RobotMassStorageDeviceAdded,
   RobotMassStorageDeviceEnumerated,
@@ -40,6 +41,7 @@ export const NOTIFY_SUBSCRIBE: 'shell:NOTIFY_SUBSCRIBE' =
   'shell:NOTIFY_SUBSCRIBE'
 export const SEND_FILE_PATHS: 'shell:SEND_FILE_PATHS' = 'shell:SEND_FILE_PATHS'
 export const CAMERA_STREAM_OPEN = 'shell:CAMERA_STREAM_OPEN' as const
+export const PROTOCOL_DESIGNER_OPEN = 'shell:PROTOCOL_DESIGNER_OPEN' as const
 export const CAMERA_PHOTO_OPEN = 'shell:CAMERA_PHOTO_OPEN' as const
 export const STEP_DETAIL_VIEWER_OPEN = 'shell:STEP_DETAIL_VIEWER_OPEN' as const
 export const STEP_DETAIL_VIEWER_UPDATE =
@@ -147,6 +149,12 @@ export const notifySubscribeAction = (
   },
   meta: { shell: true },
 })
+
+export const protocolDesignerOpenAction =
+  (): ProtocolDesignerOpenAction => ({
+    type: PROTOCOL_DESIGNER_OPEN,
+    meta: { shell: true },
+  })
 
 export const cameraStreamOpenAction = (
   hostname: string,
