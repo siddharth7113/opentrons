@@ -57,6 +57,13 @@ jobs:
           echo "exes<<EOF" >> "$GITHUB_OUTPUT"
           echo "$EXES" >> "$GITHUB_OUTPUT"
           echo "EOF" >> "$GITHUB_OUTPUT"
+      - name: 'upload installer artifact (fallback)'
+        uses: actions/upload-artifact@v4
+        with:
+          name: windows-installer
+          path: app-shell/dist/**/*.exe
+          if-no-files-found: error
+          retention-days: 14
       - name: 'publish prerelease on this fork'
         shell: bash
         env:
@@ -72,8 +79,20 @@ jobs:
 
           Windows SmartScreen will warn because the build is unsigned:
           choose 'More info' -> 'Run anyway'."
-          gh release create "$TAG" \
-            --prerelease \
-            --title "Internal test build $TAG" \
-            --notes "$NOTES" \
-            $(find app-shell/dist -name '*.exe' | head -10)
+          if ! gh release view "$TAG" >/dev/null 2>&1; then
+            gh release create "$TAG" \
+              --prerelease \
+              --title "Internal test build $TAG" \
+              --notes "$NOTES"
+          fi
+          for EXE in $(find app-shell/dist -name '*.exe' | head -10); do
+            for attempt in 1 2 3 4 5; do
+              if gh release upload "$TAG" "$EXE" --clobber; then
+                break
+              fi
+              echo "upload attempt $attempt failed, retrying in 15s..."
+              sleep 15
+              if [ "$attempt" = "5" ]; then exit 1; fi
+            done
+          done
+          gh release view "$TAG" --json assets --jq '.assets[].name'
