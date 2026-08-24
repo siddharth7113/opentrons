@@ -1,5 +1,6 @@
 import { useCallback } from 'react'
 import { useTranslation } from 'react-i18next'
+import { useDispatch } from 'react-redux'
 import { NavLink, useNavigate } from 'react-router-dom'
 import debounce from 'lodash/debounce'
 
@@ -7,10 +8,12 @@ import { Icon, LegacyStyledText, Link } from '@opentrons/components'
 
 import logoSvgThree from '/app/assets/images/logo_nav_three.svg'
 import logoSvg from '/app/assets/images/logo_nav.svg'
+import { protocolDesignerOpenAction } from '/app/redux/shell'
 
 import styles from './navbar.module.css'
 
 import type { MouseEvent } from 'react'
+import type { Dispatch } from '/app/redux/types'
 import type { RouteProps } from '../types'
 
 const SALESFORCE_HELP_LINK = 'https://support.opentrons.com/s/'
@@ -20,6 +23,7 @@ const DEBOUNCE_DURATION_MS = 300
 export function Navbar({ routes }: { routes: RouteProps[] }): JSX.Element {
   const { t } = useTranslation('top_navigation')
   const navigate = useNavigate()
+  const dispatch = useDispatch<Dispatch>()
   const navRoutes = routes.filter(
     ({ navLinkTo }: RouteProps) => navLinkTo != null
   )
@@ -53,6 +57,18 @@ export function Navbar({ routes }: { routes: RouteProps[] }): JSX.Element {
             </LegacyStyledText>
           </NavLink>
         ))}
+        <Link
+          role="button"
+          className={styles.navbar_link}
+          onClick={(e: MouseEvent<HTMLAnchorElement>) => {
+            e.preventDefault()
+            dispatch(protocolDesignerOpenAction())
+          }}
+        >
+          <LegacyStyledText forwardedAs="h3" className={styles.nav_link_text}>
+            {t('designer')}
+          </LegacyStyledText>
+        </Link>
       </div>
       <div className={styles.bottom_container}>
         <Link

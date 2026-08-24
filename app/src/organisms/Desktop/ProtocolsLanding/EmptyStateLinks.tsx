@@ -1,10 +1,6 @@
 import { useTranslation } from 'react-i18next'
 import { useDispatch } from 'react-redux'
 
-import { protocolDesignerOpenAction } from '/app/redux/shell'
-
-import type { Dispatch } from '/app/redux/types'
-
 import {
   ALIGN_CENTER,
   DIRECTION_COLUMN,
@@ -18,6 +14,10 @@ import {
   TYPOGRAPHY,
   WRAP,
 } from '@opentrons/components'
+
+import { protocolDesignerOpenAction } from '/app/redux/shell'
+
+import type { Dispatch } from '/app/redux/types'
 
 const PROTOCOL_LIBRARY_URL = 'https://library.opentrons.com'
 const API_DOCS_URL = 'https://docs.opentrons.com/v2/'
@@ -77,12 +77,6 @@ export function EmptyStateLinks(props: Props): JSX.Element | null {
             }}
           >
             {t('launch_protocol_designer')}
-
-            <Icon
-              name="open-in-new"
-              marginLeft={SPACING.spacing4}
-              size="0.5rem"
-            />
           </Link>
         </LegacyStyledText>
         <LegacyStyledText>
