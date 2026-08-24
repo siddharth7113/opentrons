@@ -20,8 +20,11 @@
   "imported": "{{filename}} imported.",
   "invalid_labware_def": "Invalid labware definition",
   "labware": "labware",
+  "labware_def_already_exists": "Labware definition already exists",
   "last_updated": "Last updated",
   "open_labware_creator": "Open Labware Creator",
+  "overwrite_labware_body": "Importing {{filename}} will replace the existing custom labware definition with the same API name and version. Reanalyze affected protocols to pick up the updated definition.",
+  "replace_definition": "Replace definition",
   "show_in_folder": "Show in folder",
   "unable_to_upload": "Unable to upload file",
   "yes_delete_def": "Yes, delete definition"

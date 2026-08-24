@@ -33,6 +33,7 @@ import { LabwareCreator } from '@opentrons/labware-library'
 
 import { useAllLabware } from '/app/local-resources/labware'
 import { AddCustomLabwareSlideout } from '/app/organisms/Desktop/Labware/AddCustomLabwareSlideout'
+import { ConfirmOverwriteLabwareModal } from '/app/organisms/Desktop/Labware/ConfirmOverwriteLabwareModal'
 import { LabwareCard } from '/app/organisms/Desktop/Labware/LabwareCard'
 import { LabwareDetails } from '/app/organisms/Desktop/Labware/LabwareDetails'
 import { useToaster } from '/app/organisms/ToasterOven'
@@ -41,7 +42,10 @@ import {
   useTrackEvent,
 } from '/app/redux/analytics'
 import { useFeatureFlag } from '/app/redux/config'
-import { addCustomLabwareFileFromCreator } from '/app/redux/custom-labware'
+import {
+  addCustomLabware,
+  addCustomLabwareFileFromCreator,
+} from '/app/redux/custom-labware'
 
 import { useLabwareFailure, useNewLabwareName } from './hooks'
 
@@ -100,7 +104,8 @@ export function Labware(): JSX.Element {
   const { makeToast } = useToaster()
 
   const labware = useAllLabware(sortBy, filterBy)
-  const { labwareFailureMessage, clearLabwareFailure } = useLabwareFailure()
+  const { labwareFailureMessage, duplicateFile, clearLabwareFailure } =
+    useLabwareFailure()
   const { newLabwareName, clearLabwareName } = useNewLabwareName()
   const [showAddLabwareSlideout, setShowAddLabwareSlideout] = useState(false)
 
@@ -114,7 +119,10 @@ export function Labware(): JSX.Element {
   })
   useEffect(
     () => {
-      if (labwareFailureMessage != null) {
+      if (duplicateFile != null) {
+        // the ConfirmOverwriteLabwareModal is rendered instead of a toast
+        setShowAddLabwareSlideout(false)
+      } else if (labwareFailureMessage != null) {
         setShowAddLabwareSlideout(false)
         makeToast(labwareFailureMessage, ERROR_TOAST, {
           closeButton: true,
@@ -134,7 +142,7 @@ export function Labware(): JSX.Element {
     },
     // FIXME(2026-03-03): Supply all missing dependencies, if it's safe. If it's unsafe, explain why.
     // eslint-disable-next-line react-hooks/exhaustive-deps
-    [labwareFailureMessage, newLabwareName]
+    [labwareFailureMessage, newLabwareName, duplicateFile]
   )
 
   return (
@@ -308,6 +316,16 @@ export function Labware(): JSX.Element {
           isExpanded={showAddLabwareSlideout}
           onCloseClick={() => {
             setShowAddLabwareSlideout(false)
+          }}
+        />
+      )}
+      {duplicateFile != null && (
+        <ConfirmOverwriteLabwareModal
+          duplicateFile={duplicateFile}
+          onCancel={clearLabwareFailure}
+          onConfirmOverwrite={() => {
+            dispatch(addCustomLabware(duplicateFile))
+            clearLabwareFailure()
           }}
         />
       )}

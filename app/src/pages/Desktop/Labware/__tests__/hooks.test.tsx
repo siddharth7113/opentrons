@@ -15,6 +15,7 @@ import {
 } from '/app/redux/custom-labware'
 import {
   mockDefinition,
+  mockDuplicateLabware,
   mockValidLabware,
 } from '/app/redux/custom-labware/__fixtures__'
 
@@ -147,13 +148,11 @@ describe('useLabwareFailure hook', () => {
     const { result } = renderHook(useLabwareFailure, { wrapper })
     const errorMessage = result.current.labwareFailureMessage
     expect(errorMessage).toBe('Error importing 123. Invalid labware definition')
+    expect(result.current.duplicateFile).toBe(null)
   })
   it('should return duplicate labware definition', () => {
     vi.mocked(getAddLabwareFailure).mockReturnValue({
-      file: {
-        type: 'DUPLICATE_LABWARE_FILE',
-        filename: '123',
-      } as FailedLabwareFile,
+      file: mockDuplicateLabware,
       errorMessage: null,
     })
 
@@ -168,8 +167,9 @@ describe('useLabwareFailure hook', () => {
     const errorMessage = result.current.labwareFailureMessage
 
     expect(errorMessage).toBe(
-      'Error importing 123. Duplicate labware definition'
+      'Error importing /full/path/to/labware/d.json. Duplicate labware definition'
     )
+    expect(result.current.duplicateFile).toBe(mockDuplicateLabware)
   })
   it('should return opentrons labware definition', () => {
     vi.mocked(getAddLabwareFailure).mockReturnValue({
