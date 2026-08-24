@@ -131,3 +131,35 @@
   background-color: var(--blue-50);
   cursor: pointer;
 }
+
+.divider {
+  width: 1px;
+  height: 2rem;
+  background-color: var(--border-color-gray, #e1e1e1);
+}
+
+.controls_right {
+  display: flex;
+  align-items: center;
+}
+
+.icon_button {
+  display: flex;
+  width: 2rem;
+  height: 2rem;
+  align-items: center;
+  justify-content: center;
+  padding: 0;
+  border: none;
+  border-radius: 50%;
+  background-color: transparent;
+  cursor: pointer;
+}
+
+.icon_button:hover {
+  background-color: var(--grey-30);
+}
+
+.icon_button:active {
+  background-color: var(--grey-35);
+}

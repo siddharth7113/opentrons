@@ -3,6 +3,7 @@ import { useTranslation } from 'react-i18next'
 
 import {
   Chip,
+  Icon,
   NewIconButton,
   NO_WRAP,
   StyledText,
@@ -12,6 +13,7 @@ import {
 
 import styles from './controls.module.css'
 import { PerStepOverflowMenu } from './PerStepOverflowMenu'
+import { isEditableKeyboardTarget } from './utils/isEditableKeyboardTarget'
 
 // import {
 //   getNextGroupFirstCommandId,
@@ -34,6 +36,8 @@ interface ControlsProps {
   groupedCommands: GroupedCommands | null
   milliSecondsPerFrame: number
   setMilliSecondsPerFrame: Dispatch<SetStateAction<number>>
+  showStepDetails: boolean
+  onClickStepDetails: Dispatch<SetStateAction<boolean>>
 }
 export function Controls(props: ControlsProps): JSX.Element {
   const {
@@ -48,6 +52,8 @@ export function Controls(props: ControlsProps): JSX.Element {
     // groupedCommands,
     milliSecondsPerFrame,
     setMilliSecondsPerFrame,
+    showStepDetails,
+    onClickStepDetails,
   } = props
   const { t } = useTranslation('protocol_visualization')
 
@@ -87,10 +93,19 @@ export function Controls(props: ControlsProps): JSX.Element {
   // handlePlayPause by space key
   useEffect(() => {
     const handleKeyDown = (event: KeyboardEvent): void => {
-      if (event.key === ' ') {
-        event.preventDefault()
-        handlePlayPause()
+      if (event.key !== ' ') {
+        return
       }
+
+      if (
+        isEditableKeyboardTarget(event.target) ||
+        isEditableKeyboardTarget(document.activeElement)
+      ) {
+        return
+      }
+
+      event.preventDefault()
+      handlePlayPause()
     }
 
     document.addEventListener('keydown', handleKeyDown)
@@ -139,6 +154,19 @@ export function Controls(props: ControlsProps): JSX.Element {
               onClick={handlePlayPause}
               aria-label={isPlaying ? t('pause') : t('play')}
             />
+            <div className={styles.divider} />
+            <div className={styles.controls_right}>
+              <button
+                type="button"
+                onClick={() => {
+                  onClickStepDetails(!showStepDetails)
+                }}
+                className={styles.icon_button}
+                aria-label={t('step_details')}
+              >
+                <Icon name="step-detail" size="1rem" />
+              </button>
+            </div>
           </div>
         </div>
       </div>

@@ -73,6 +73,7 @@ export function VisualizerContainer(
   const [isDragging, setIsDragging] = useState<boolean>(false)
 
   const [selectedCommandId, setSelectedCommand] = useState<string | null>(null)
+  const [showStepDetails, setShowStepDetails] = useState<boolean>(true)
 
   // for resizable columns
   const [leftWidth, setLeftWidth] = useState<number>(INITIAL_WIDTH_PX)
@@ -381,6 +382,8 @@ export function VisualizerContainer(
           groupedCommands={groupedCommands}
           milliSecondsPerFrame={milliSecondsPerFrame}
           setMilliSecondsPerFrame={setMilliSecondsPerFrame}
+          showStepDetails={showStepDetails}
+          onClickStepDetails={setShowStepDetails}
         />
         <DeckView
           filteredCommands={filteredCommands}
@@ -413,26 +416,33 @@ export function VisualizerContainer(
           selectedRunTimeCommand={selectedRunTimeCommand}
         />
       </div>
-      {/* Gutter between center & right */}
-      <div
-        className={`${styles.gutter} ${isDragging ? styles.grabbing : ''}`}
-        onMouseDown={(e: MouseEvent<HTMLDivElement>) => {
-          handleMouseDown(e, 'right')
-        }}
-      />
-      {/* Right Column is resizable */}
-      <div className={styles.right_column} style={{ width: `${rightWidth}px` }}>
-        {selectedRunTimeCommand != null ? (
-          <StepDetailContainer
-            protocolKey={protocolKey}
-            commands={commands}
-            robotState={robotState}
-            invariantContext={invariantContext}
-            currentCommand={selectedRunTimeCommand}
-            liquids={liquids}
+      {showStepDetails ? (
+        <>
+          {/* Gutter between center & right */}
+          <div
+            className={`${styles.gutter} ${isDragging ? styles.grabbing : ''}`}
+            onMouseDown={(e: MouseEvent<HTMLDivElement>) => {
+              handleMouseDown(e, 'right')
+            }}
           />
-        ) : null}
-      </div>
+          {/* Right Column is resizable */}
+          <div
+            className={styles.right_column}
+            style={{ width: `${rightWidth}px` }}
+          >
+            {selectedRunTimeCommand != null ? (
+              <StepDetailContainer
+                protocolKey={protocolKey}
+                commands={commands}
+                robotState={robotState}
+                invariantContext={invariantContext}
+                currentCommand={selectedRunTimeCommand}
+                liquids={liquids}
+              />
+            ) : null}
+          </div>
+        </>
+      ) : null}
     </div>
   )
 }

@@ -1,5 +1,5 @@
-import { screen } from '@testing-library/react'
-import { afterEach, beforeEach, describe, it, vi } from 'vitest'
+import { fireEvent, screen } from '@testing-library/react'
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 
 import { NewIconButton, TimelineScrubber } from '@opentrons/components'
 
@@ -41,6 +41,8 @@ describe('Controls', () => {
       groupedCommands: null,
       milliSecondsPerFrame: 1000,
       setMilliSecondsPerFrame: vi.fn(),
+      showStepDetails: true,
+      onClickStepDetails: vi.fn(),
     }
     vi.mocked(NewIconButton).mockReturnValue(<div>mock NewIconButton</div>)
     vi.mocked(TimelineScrubber).mockReturnValue(
@@ -72,5 +74,27 @@ describe('Controls', () => {
     render(props)
     screen.getByText('mock NewIconButton')
     screen.getByText('mock TimelineScrubber')
+  })
+
+  it('should toggle step details when clicking the step details button', () => {
+    render(props)
+    fireEvent.click(screen.getByRole('button', { name: 'Step details' }))
+    expect(props.onClickStepDetails).toHaveBeenCalledWith(false)
+  })
+
+  it('should not trigger play/pause from spacebar while typing in an input', () => {
+    render(props)
+    const input = document.createElement('input')
+    document.body.appendChild(input)
+    input.focus()
+    fireEvent.keyDown(input, { key: ' ' })
+    expect(props.handlePlayPause).not.toHaveBeenCalled()
+    document.body.removeChild(input)
+  })
+
+  it('should trigger play/pause from spacebar outside editable targets', () => {
+    render(props)
+    fireEvent.keyDown(document.body, { key: ' ' })
+    expect(props.handlePlayPause).toHaveBeenCalled()
   })
 })
