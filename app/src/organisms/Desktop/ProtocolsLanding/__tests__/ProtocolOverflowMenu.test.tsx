@@ -96,6 +96,18 @@ describe('ProtocolOverflowMenu', () => {
     )
   })
 
+  it('should dispatch converting export when clicking Export with app labware', () => {
+    render()
+    const button = screen.getByTestId('ProtocolOverflowMenu_overflowBtn')
+    fireEvent.click(button)
+    const convertButton = screen.getByText('Export with app labware')
+    fireEvent.click(convertButton)
+    expect(vi.mocked(exportProtocol)).toHaveBeenCalledWith(
+      storedProtocolData.protocolKey,
+      true
+    )
+  })
+
   it('should call folder open function when clicking show in folder', () => {
     render()
     const button = screen.getByTestId('ProtocolOverflowMenu_overflowBtn')

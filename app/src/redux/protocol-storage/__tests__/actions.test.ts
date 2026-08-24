@@ -58,7 +58,17 @@ describe('protocol storage actions', () => {
       args: ['protocol-key'],
       expected: {
         type: 'protocolStorage:EXPORT_PROTOCOL',
-        payload: { protocolKey: 'protocol-key' },
+        payload: { protocolKey: 'protocol-key', convertToAppLabware: false },
+        meta: { shell: true },
+      },
+    },
+    {
+      name: 'exportProtocol with labware conversion',
+      creator: actions.exportProtocol,
+      args: ['protocol-key', true],
+      expected: {
+        type: 'protocolStorage:EXPORT_PROTOCOL',
+        payload: { protocolKey: 'protocol-key', convertToAppLabware: true },
         meta: { shell: true },
       },
     },

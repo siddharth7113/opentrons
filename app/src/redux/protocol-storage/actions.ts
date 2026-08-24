@@ -140,9 +140,10 @@ export const viewProtocolSourceFolder = (
 })
 
 export const exportProtocol = (
-  protocolKey: string
+  protocolKey: string,
+  convertToAppLabware: boolean = false
 ): Types.ExportProtocolAction => ({
   type: EXPORT_PROTOCOL,
-  payload: { protocolKey },
+  payload: { protocolKey, convertToAppLabware },
   meta: { shell: true },
 })

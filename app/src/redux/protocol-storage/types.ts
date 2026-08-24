@@ -124,7 +124,7 @@ export interface ViewProtocolSourceFolder {
 
 export interface ExportProtocolAction {
   type: 'protocolStorage:EXPORT_PROTOCOL'
-  payload: { protocolKey: string }
+  payload: { protocolKey: string; convertToAppLabware: boolean }
   meta: { shell: true }
 }
 
