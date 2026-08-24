@@ -84,7 +84,7 @@ export interface ItemData {
 // Note: Since we're using the height value that appears most frequently in the design,
 // we may need to adjust it later.
 const DEFAULT_ROW_HEIGHT_PX = 64
-const DEFAULT_STEP_GROUP_SECONDS = 2000
+const DEFAULT_STEP_GROUP_MS = 2000
 
 export function AnnotatedSteps(props: AnnotatedStepsProps): JSX.Element {
   const {
@@ -94,7 +94,7 @@ export function AnnotatedSteps(props: AnnotatedStepsProps): JSX.Element {
     setSelectedCommand,
     handlePause,
     setIsAtBottom,
-    milliSecondsPerFrame = DEFAULT_STEP_GROUP_SECONDS,
+    milliSecondsPerFrame = DEFAULT_STEP_GROUP_MS,
     isGlobalPlaying = false,
   } = props
 
@@ -413,7 +413,7 @@ export function AnnotatedSteps(props: AnnotatedStepsProps): JSX.Element {
     <>
       {showErrorDetailsModal ? (
         <ProtocolAnalysisErrorModal
-          errors={analysis?.errors}
+          errors={analysis?.errors ?? []}
           onClose={() => {
             setShowErrorDetailsModal(false)
           }}
