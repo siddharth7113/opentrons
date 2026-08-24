@@ -8,7 +8,12 @@ on:
   push:
     branches:
       - 'sid/win-build**'
-  workflow_dispatch: {}
+  workflow_dispatch:
+    inputs:
+      label:
+        description: 'Optional human-readable label for the release title (e.g. "PD embedded + viz fixes")'
+        required: false
+        default: ''
 
 permissions:
   contents: write
@@ -80,8 +85,10 @@ jobs:
         env:
           GH_TOKEN: ${{ github.token }}
         run: |
-          TAG="internal-test-$(date +%Y%m%d)-${GITHUB_SHA::7}"
-          NOTES="Unsigned internal test build from branch ${GITHUB_REF_NAME}.
+          TAG="team-v${{ github.run_number }}"
+          LABEL="${{ github.event.inputs.label }}"
+          TITLE="Team build ${{ github.run_number }} ($(date +%Y-%m-%d))${LABEL:+ — $LABEL}"
+          NOTES="Unsigned internal test build from branch ${GITHUB_REF_NAME} (commit ${GITHUB_SHA::7}).
 
           Includes:
           - Custom labware re-import: Replace definition confirmation dialog
@@ -93,7 +100,7 @@ jobs:
           if ! gh release view "$TAG" >/dev/null 2>&1; then
             gh release create "$TAG" \
               --prerelease \
-              --title "Internal test build $TAG" \
+              --title "$TITLE" \
               --notes "$NOTES"
           fi
           for EXE in $(find app-shell/dist -maxdepth 1 -name 'Opentrons-*.exe' | head -5); do
