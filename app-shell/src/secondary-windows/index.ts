@@ -11,6 +11,7 @@
 import {
   CAMERA_PHOTO_OPEN,
   CAMERA_STREAM_OPEN,
+  PROTOCOL_DESIGNER_OPEN,
   STEP_DETAIL_VIEWER_CLOSE,
   STEP_DETAIL_VIEWER_CLOSED,
   STEP_DETAIL_VIEWER_OPEN,
@@ -19,6 +20,7 @@ import {
 import { createLogger } from '../log'
 import { openCameraPhoto } from './camera-photo'
 import { openCameraStream } from './camera-stream'
+import { openProtocolDesigner } from './protocol-designer'
 import {
   clearStepDetailViewerData,
   openStepDetailViewer,
@@ -121,6 +123,8 @@ function detailsByActionType(action: Action): SecondaryWindowDetails | null {
         windowTitle: action.payload.windowTitle,
         log,
       })
+    case PROTOCOL_DESIGNER_OPEN:
+      return openProtocolDesigner({ log })
     case STEP_DETAIL_VIEWER_OPEN: {
       const existingWindow = getWindow(
         'step-detail-viewer',

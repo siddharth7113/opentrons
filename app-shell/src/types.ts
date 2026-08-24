@@ -102,6 +102,7 @@ export type RELOAD_UI_TYPE = 'shell:RELOAD_UI'
 export type OT2_APP_OPEN_TYPE = 'shell:OT2_APP_OPEN'
 export type SEND_LOG_TYPE = 'shell:SEND_LOG'
 export type CAMERA_STREAM_OPEN_TYPE = 'shell:CAMERA_STREAM_OPEN'
+export type PROTOCOL_DESIGNER_OPEN_TYPE = 'shell:PROTOCOL_DESIGNER_OPEN'
 
 // copy
 // TODO(mc, 2020-05-11): i18n

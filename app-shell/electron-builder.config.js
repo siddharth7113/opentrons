@@ -50,6 +50,13 @@ module.exports = async () => ({
       filter: ['**/*'],
     },
   ],
+  extraResources: [
+    {
+      from: '../protocol-designer/dist',
+      to: 'protocol-designer',
+      filter: ['**/*'],
+    },
+  ],
   extraMetadata: {
     version: await (
       await import('../scripts/git-version.mjs')
